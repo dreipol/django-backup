@@ -61,11 +61,12 @@ class Command(BaseCommand):
             db.backup(database, os.path.join(database_root, name))
 
         # create backup gzipped tarball
-        with tarfile.open(output_file, 'w:gz') as tf:
-            tf.add(database_root, arcname='backup/databases')
-            tf.add(media_root, arcname='backup/media')
-            for extra in extras:
-                tf.add(extra, arcname='backup/extras/{}'.format(os.path.split(extra)[1]))
+        tf = tarfile.open(output_file, 'w:gz')
+        tf.add(database_root, arcname='backup/databases')
+        tf.add(media_root, arcname='backup/media')
+        for extra in extras:
+            tf.add(extra, arcname='backup/extras/{}'.format(os.path.split(extra)[1]))
+        tf.close()
 
         rm_rf(backup_root)
         #upload to dropbox if defined
