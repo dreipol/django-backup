@@ -32,7 +32,7 @@ class Command(BaseCommand):
             if output_dir is None:
                 raise CommandError('You must specify an output file')
             else:
-                output_file = os.path.join(output_dir, '{}.tgz'.format(_time()))
+                output_file = os.path.join(output_dir, '{0}.tgz'.format(_time()))
 
         if hasattr(settings, 'DATABASES'):
             database_list = settings.DATABASES
@@ -74,7 +74,7 @@ class Command(BaseCommand):
             secret = settings.DJANGO_BACKUP_DROPOX_SECRET
             token = settings.DJANGO_BACKUP_DROPOX_TOKEN
             dropbox_target_folder = settings.DJANGO_BACKUP_DROPOX_TARGET_FOLDER
-            dropbox_target_file = os.path.join(dropbox_target_folder,'{}.tgz'.format(_time()) )
+            dropbox_target_file = os.path.join(dropbox_target_folder,'{0}.tgz'.format(_time()) )
             if not token:
                 token = 'DROPBOX_TOKEN'
 
