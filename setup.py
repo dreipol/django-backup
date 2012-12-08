@@ -8,7 +8,7 @@ setup(
     author_email = 'chris.cohoat@gmail.com',
     url            = 'https://github.com/chriscohoat/django-backup',
     description    = 'A backup script for the Django admin',
-    packages=find_packages(),
+    packages= ['django-backup'],
     include_package_data=True,
 )
 
