@@ -69,22 +69,6 @@ class Command(BaseCommand):
         tf.close()
 
         rm_rf(backup_root)
-        #upload to dropbox if defined
-        if settings.DJANGO_BACKUP_DROPBOX_UPLOAD:
-            key = settings.DJANGO_BACKUP_DROPOX_KEY
-            secret = settings.DJANGO_BACKUP_DROPOX_SECRET
-            token = settings.DJANGO_BACKUP_DROPOX_TOKEN
-            dropbox_target_folder = settings.DJANGO_BACKUP_DROPOX_TARGET_FOLDER
-            dropbox_target_file = os.path.join(dropbox_target_folder,'{0}.tgz'.format(_time()) )
-            if not token:
-                token = 'DROPBOX_TOKEN'
-
-
-            client =  DropboxBackupClient(key,secret, 'dropbox',token)
-            output_file = open(output_file,'r')
-
-            client.upload_file(output_file, dropbox_target_file)
-            output_file.close()
 
 def rm_rf(d):
     for path in (os.path.join(d,f) for f in os.listdir(d)):
