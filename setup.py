@@ -9,6 +9,7 @@ setup(
     url            = 'https://github.com/chriscohoat/django-backup',
     description    = 'A backup script for the Django admin',
     packages= ['django-backup'],
+	requires= ['dropbox'],
     include_package_data=True,
 )
 

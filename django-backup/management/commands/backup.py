@@ -7,6 +7,7 @@ from ... import db
 
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from clients import DropboxBackupClient
 
 # Based on: http://code.google.com/p/django-backup/
 # Based on: http://www.djangosnippets.org/snippets/823/
@@ -24,7 +25,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         extras = options.get('extras')
-        
+
         output_file = options.get('output')
         output_dir = options.get('outdir')
         if output_file is None:
@@ -32,7 +33,7 @@ class Command(BaseCommand):
                 raise CommandError('You must specify an output file')
             else:
                 output_file = os.path.join(output_dir, '{}.tgz'.format(_time()))
-        
+
         if hasattr(settings, 'DATABASES'):
             database_list = settings.DATABASES
         else:
@@ -47,9 +48,9 @@ class Command(BaseCommand):
                     'PORT': settings.DATABASE_PORT,
                 }
             }
-            
+
         media_root = settings.MEDIA_ROOT
-        
+
         # Create a temporary directory to perform our backup in
         backup_root = mkdtemp()
         database_root = os.path.join(backup_root, 'databases')
@@ -58,16 +59,32 @@ class Command(BaseCommand):
         # Back up databases
         for name, database in database_list.iteritems():
             db.backup(database, os.path.join(database_root, name))
-        
+
         # create backup gzipped tarball
         with tarfile.open(output_file, 'w:gz') as tf:
             tf.add(database_root, arcname='backup/databases')
             tf.add(media_root, arcname='backup/media')
             for extra in extras:
                 tf.add(extra, arcname='backup/extras/{}'.format(os.path.split(extra)[1]))
-        
+
         rm_rf(backup_root)
-        
+        #upload to dropbox if defined
+        if settings.DJANGO_BACKUP_DROPBOX_UPLOAD:
+            key = settings.DJANGO_BACKUP_DROPOX_KEY
+            secret = settings.DJANGO_BACKUP_DROPOX_SECRET
+            token = settings.DJANGO_BACKUP_DROPOX_TOKEN
+            dropbox_target_folder = settings.DJANGO_BACKUP_DROPOX_TARGET_FOLDER
+            dropbox_target_file = os.path.join(dropbox_target_folder,'{}.tgz'.format(_time()) )
+            if not token:
+                token = 'DROPBOX_TOKEN'
+
+
+            client =  DropboxBackupClient(key,secret, 'dropbox',token)
+            output_file = open(output_file,'r')
+
+            client.upload_file(output_file, dropbox_target_file)
+            output_file.close()
+
 def rm_rf(d):
     for path in (os.path.join(d,f) for f in os.listdir(d)):
         if os.path.isdir(path):
